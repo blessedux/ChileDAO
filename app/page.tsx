@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import SplineWrapper from './components/SplineWrapper';
+import Spline from '@splinetool/react-spline';
 import './globals.css';
 import Image from 'next/image';
 
@@ -10,7 +10,7 @@ export default function Home() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [splineZIndex, setSplineZIndex] = useState(1);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const lastScrollTop = useRef(0);
+  const splineRef = useRef<any>(null);
 
   useEffect(() => {
     const handleScroll = (e: Event) => {
@@ -65,6 +65,38 @@ export default function Home() {
     };
   }, []);
 
+  const onLoad = (splineApp: any) => {
+    splineRef.current = splineApp;
+    console.log('Spline scene loaded');
+    
+    // Initialize the scene with the first camera state
+    if (splineApp) {
+      splineApp.emitEvent('scroll', {
+        scrollY: 0,
+        scrollProgress: 0
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (splineRef.current && scrollProgress !== undefined) {
+      // Send scroll progress to Spline scene with more detailed event data
+      splineRef.current.emitEvent('scroll', {
+        scrollY: scrollProgress * 1000,
+        scrollProgress: scrollProgress,
+        section: Math.floor(scrollProgress * 5), // Assuming 5 sections
+        direction: scrollProgress > 0.5 ? 'down' : 'up'
+      });
+
+      // Also try to trigger specific camera states based on scroll progress
+      const section = Math.floor(scrollProgress * 5);
+      splineRef.current.emitEvent('cameraState', {
+        state: `state${section + 1}`,
+        progress: scrollProgress
+      });
+    }
+  }, [scrollProgress]);
+
   return (
     <div 
       ref={scrollContainerRef}
@@ -86,9 +118,16 @@ export default function Home() {
         zIndex: splineZIndex,
         pointerEvents: 'none'
       }}>
-        <SplineWrapper 
-          src="https://my.spline.design/rotatinginteractiveherosection-07OxQV3OFRZakYfyaJ026jK7/"
-          scrollProgress={scrollProgress}
+        <Spline
+          scene="https://prod.spline.design/2XtclwUBm6prH5W8/scene.splinecode"
+          onLoad={onLoad}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
         />
       </div>
 

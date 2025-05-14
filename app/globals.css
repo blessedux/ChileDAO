@@ -11,12 +11,14 @@ html, body {
   scroll-behavior: smooth;
 }
 
-/* Hide Spline watermark - multiple approaches */
+/* Hide Spline watermark */
 .spline-watermark,
 [class*="spline-watermark"],
 [class*="SplineWatermark"],
 iframe [class*="watermark"],
-iframe [class*="Watermark"] {
+iframe [class*="Watermark"],
+[class*="spline-logo"],
+[class*="SplineLogo"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
