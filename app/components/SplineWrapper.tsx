@@ -32,6 +32,24 @@ export default function SplineWrapper({ src }: SplineWrapperProps) {
     removeWatermark();
   }, []);
 
+  // Workaround to block scroll/zoom events on the iframe
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const preventScroll = (e: WheelEvent | TouchEvent) => {
+      e.preventDefault();
+    };
+
+    iframe.addEventListener('wheel', preventScroll, { passive: false });
+    iframe.addEventListener('touchmove', preventScroll, { passive: false });
+
+    return () => {
+      iframe.removeEventListener('wheel', preventScroll);
+      iframe.removeEventListener('touchmove', preventScroll);
+    };
+  }, []);
+
   return (
     <iframe
       ref={iframeRef}
